@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Performance Predictor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Ad Performance Predictor</h1>
+                <p>Upload your advertisement video and get instant performance predictions</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <div class="upload-container" id="uploadContainer">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>Upload Your Advertisement</h3>
+                        <p>Drag and drop your video file here or click to browse</p>
+                        <input type="file" id="videoFile" accept="video/*" style="display: none;">
+                        <button class="upload-btn" onclick="document.getElementById('videoFile').click()">
+                            <i class="fas fa-upload"></i> Choose Video
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="form-fields single-centered">
+                    <div class="form-group center-align">
+                        <label for="brandName">
+                            <i class="fas fa-tag"></i> Brand Name
+                        </label>
+                        <input type="text" id="brandName" placeholder="Enter brand name (e.g., Nike, Apple)">
+                    </div>
+                </div>
+
+                <!-- Predict Button -->
+                <button class="predict-btn" id="predictBtn" disabled>
+                    <i class="fas fa-magic"></i> Predict Performance
+                </button>
+            </section>
+
+            <!-- Loading Section -->
+            <section class="loading-section" id="loadingSection" style="display: none;">
+                <div class="loading-container">
+                    <div class="loading-spinner">
+                        <i class="fas fa-cog fa-spin"></i>
+                    </div>
+                    <h3>Analyzing Your Advertisement...</h3>
+                    <p id="progressText">Starting analysis...</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-container">
+                    <div class="results-header">
+                        <h2><i class="fas fa-chart-bar"></i> Performance Prediction</h2>
+                        <button class="new-analysis-btn" onclick="resetForm()">
+                            <i class="fas fa-plus"></i> New Analysis
+                        </button>
+                    </div>
+
+                    <!-- Single Card Results -->
+                    <div class="single-result-card">
+                        <!-- Top Section: Confidence & Performance -->
+                        <div class="result-header">
+                            <div class="confidence-section">
+                                <h3>AI Performance Prediction</h3>
+                                <div class="confidence-display">
+                                    <span class="confidence-percentage" id="engagementScore">0.00%</span>
+                                    <span class="confidence-label">confidence</span>
+                                </div>
+                            </div>
+                            <div class="performance-badge" id="engagementBadge">
+                                <span id="engagementBadgeText">Loading...</span>
+                            </div>
+                        </div>
+
+                        <!-- Middle Section: Key Metrics -->
+                        <div class="key-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Model Accuracy</span>
+                                <span class="metric-value">65.1%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Training Data</span>
+                                <span class="metric-value">313 Videos</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Analysis Type</span>
+                                <span class="metric-value">Audio + Transcript</span>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Section: Context & Recommendation -->
+                        <div class="result-footer">
+                            <div class="prediction-context">
+                                <p id="engagementContext">Based on content analysis of audio and transcript features</p>
+                            </div>
+                            <div class="top-recommendation" id="topRecommendation">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Loading recommendation...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <section class="error-section" id="errorSection" style="display: none;">
+                <div class="error-container">
+                    <div class="error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Oops! Something went wrong</h3>
+                    <p id="errorMessage">An error occurred while processing your video.</p>
+                    <button class="retry-btn" onclick="resetForm()">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Ad Performance Predictor. Powered by AI.</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 
