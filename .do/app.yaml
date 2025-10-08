@@ -1,0 +1,16 @@
+name: ape-beta
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: SporeLogic/VideoPersonaEngine
+    branch: main
+  run_command: python web_app/app.py
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  build_command: |
+    pip install --upgrade pip
+    pip install --only-binary=all llvmlite numba
+    pip install -e .
+  http_port: 8080
