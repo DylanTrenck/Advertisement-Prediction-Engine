@@ -6,7 +6,7 @@ services:
     repo: SporeLogic/VideoPersonaEngine
     branch: main
   run_command: python web_app/app.py
-  environment_slug: python
+  environment_slug: python-3.9
   instance_count: 1
   instance_size_slug: basic-xxs
   build_command: |

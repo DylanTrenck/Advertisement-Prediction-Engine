@@ -30,7 +30,7 @@ dependencies = [
     "joblib>=1.3.0",
     
     # Audio processing (minimal set)
-    "librosa>=0.10.0",
+    "librosa>=0.10.2",
     "soundfile>=0.12.0",
     "pydub>=0.25.0",
     "ffmpeg-python>=0.2.0",
@@ -43,9 +43,9 @@ dependencies = [
     # Utilities
     "requests>=2.31.0",
     
-    # Force pre-built wheels for problematic packages
-    "llvmlite>=0.36.0; platform_machine != 'arm64'",
-    "numba>=0.53.0; platform_machine != 'arm64'",
+    # Force pre-built wheels for problematic packages (Python 3.12 compatible)
+    "llvmlite>=0.41.0; platform_machine != 'arm64'",
+    "numba>=0.58.0; platform_machine != 'arm64'",
 ]
 
 [project.optional-dependencies]
