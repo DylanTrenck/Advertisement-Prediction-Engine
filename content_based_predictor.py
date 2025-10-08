@@ -15,7 +15,8 @@ from typing import Any
 
 import ffmpeg
 import joblib
-
+import s3fs
+from dotenv import load_dotenv
 # Audio and text processing
 import librosa
 import nltk
@@ -24,6 +25,24 @@ import speech_recognition as sr
 from pydub import AudioSegment
 from textblob import TextBlob
 
+load_dotenv()
+
+space_name = "simulated-persona-engine"
+endpoint_url = "https://nyc3.digitaloceanspaces.com"
+access_key = os.getenv("DO_ACCESS_KEY")
+secret_key = os.getenv("DO_SECRET_KEY")
+
+if access_key is None or secret_key is None:
+    import sys
+
+    print("keys emtpy??")
+    sys.exit(1)
+
+s3 = s3fs.S3FileSystem(
+    key=access_key,
+    secret=secret_key,
+    client_kwargs={"endpoint_url": endpoint_url},
+)
 
 class ContentBasedPredictor:
     """
@@ -51,26 +70,33 @@ class ContentBasedPredictor:
         self.load_model()
 
     def load_model(self):
-        """Load the trained content-based model (313-video trained)."""
+        """Load the trained content-based model (313-video trained) from S3."""
         try:
-            model_path = self.models_dir / "content_based_313_model.pkl"
-            scaler_path = self.models_dir / "content_based_313_scaler.pkl"
-            features_path = self.models_dir / "content_based_313_features.pkl"
+            # Define S3 paths for model files
+            model_path = f"{space_name}/APE/content_based_313_model.pkl"
+            scaler_path = f"{space_name}/APE/content_based_313_scaler.pkl"
+            features_path = f"{space_name}/APE/content_based_313_features.pkl"
 
-            if not all(p.exists() for p in [model_path, scaler_path, features_path]):
-                self.logger.error("Content-based model files not found!")
-                raise FileNotFoundError("Model files missing")
-
-            self.model = joblib.load(model_path)
-            self.scaler = joblib.load(scaler_path)
-            self.feature_columns = joblib.load(features_path)
+            self.logger.info("Loading model files from S3...")
+            
+            # Load model directly from S3
+            with s3.open(model_path, "rb") as f:
+                self.model = joblib.load(f)
+            
+            # Load scaler directly from S3
+            with s3.open(scaler_path, "rb") as f:
+                self.scaler = joblib.load(f)
+            
+            # Load feature columns directly from S3
+            with s3.open(features_path, "rb") as f:
+                self.feature_columns = joblib.load(f)
 
             self.logger.info(
-                f"Loaded content-based model (313 videos) with {len(self.feature_columns)} features"
+                f"Loaded content-based model (313 videos) with {len(self.feature_columns)} features from S3"
             )
 
         except Exception as e:
-            self.logger.error(f"Failed to load model: {e}")
+            self.logger.error(f"Failed to load model from S3: {e}")
             raise
 
     def extract_audio_from_video(self, video_path: str) -> str:
