@@ -42,6 +42,8 @@ dependencies = [
     
     # Utilities
     "requests>=2.31.0",
+    "s3fs>=2023.10.0",
+    "python-dotenv>=1.0.0",
     
     # Force pre-built wheels for problematic packages (Python 3.12 compatible)
     "llvmlite>=0.41.0; platform_machine != 'arm64'",
