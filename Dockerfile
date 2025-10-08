@@ -13,4 +13,4 @@ RUN set FLASK_APP=web_app/app.py
 RUN cd web_app
 
 # Run the application.
-CMD ["/app/.venv/bin/flask", "run", "--port", "80", "--host", "0.0.0.0"]
+CMD ["uv","run", "flask", "run", "--port", "80", "--host", "0.0.0.0"]
