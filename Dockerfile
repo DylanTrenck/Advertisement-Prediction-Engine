@@ -8,11 +8,11 @@ COPY . /app
 WORKDIR /app
 RUN uv sync --frozen --no-cache
 
-RUN cd web_app
+# Install gunicorn
+RUN uv pip install gunicorn
 
-RUN set FLASK_APP = app.py
+# Set environment variables
+ENV FLASK_APP=web_app/app.py
 
-
-
-# Run the application.
-CMD ["uv","run", "flask", "run", "--port", "80", "--host", "0.0.0.0"]
+# Run the application with Gunicorn
+CMD ["uv", "run", "gunicorn", "-c", "gunicorn.conf.py", "web_app.app:app"]
