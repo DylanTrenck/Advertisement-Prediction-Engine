@@ -67,3 +67,6 @@ results/
 
 # Lock files (keep uv.lock but ignore others)
 # uv.lock  # Keep this for dependency management
+
+# Word temp files
+~$*.docx

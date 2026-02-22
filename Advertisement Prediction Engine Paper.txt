@@ -1,0 +1,79 @@
+Advertisement Prediction Engine Paper
+Dylan Trenck
+Sporelogic
+
+
+
+	In the age of quick media waves and a constantly evolving digital landscape, advertisement creators need a way to validate that their creations will convert effectively into viral viewership and customer interaction. With the rapidly devolving attention span of the general population, there must be a way to iterate and validate on creatives. The Advertisement Prediction Engine (APE) attempts to simplify the ad testing process by allowing creators to prove with a measurable accuracy whether their advertisement will be performant. This paper will highlight the process and development of the Advertisement Prediction Engine and the roadmap from present.
+
+Investigation
+	In the beginning of my research into this idea, I explored two types of research papers: a group from studies regarding features that make advertisements effective, and a group of machine learning approaches within this domain and for other multimodal use-cases. What I found in my research was that the machine learning space for predicting performance was generally novel and yet to be fully explored. I began by looking into different use cases that had already implemented machine learning models that could accept video, audio, and textual features to make a single prediction about the content. I had previous experience working with multi-modal modelling and felt that it would be a useful tool to have to test if an advertisement I make will actually capture people�s attention and get in front of a large audience. In the other side of my research into this domain, I found out how others determined what parts of an ad made them performant. Our definition of performant describes the likelihood of an advertisement to be among the highest performers from the training data.
+
+
+
+
+
+
+	The research papers I found most influential focused on structural components of advertisements and their correlation to performance. Studies like "Look, Read and Feel: Benchmarking Ads Understanding with Multimodal Multitask Learning" and "Design of Advertisement Creative Optimization and Performance Enhancement System Based on Multimodal Deep Learning" revealed that specific structural elements significantly impact advertisement virality. The most compelling findings were that the existence of a hook within the first 5 seconds of an advertisement, the presence of clear calls to action, and the overall sentiment structure of the content all showed strong correlations with performance metrics. These structural insights directly shaped my approach to feature selection, particularly for the transcript analysis component.
+
+	For multimodal applications, I studied similar systems within the advertising space and found that most approaches relied heavily on transcript analysis to extract structural features about the advertisement itself. This validated my intuition that textual content would be crucial for performance prediction. Additionally, I had previously developed a multi-modal model that used video and audio to extract key highlight moments from videos, which gave me experience with the YouTube Data API for gathering metadata. This previous project provided the foundation for understanding how to collect and structure training data from YouTube's public API, which became essential for building the training dataset for the APE.
+
+Planning
+As I began to outline this project, I originally wanted to make a model that incorporated video, audio, and transcription altogether to predict likes, comments, and views. In my efforts to make a preliminary model I found that it was difficult to get something with an accuracy greater than 13% and I believe it had to do with the overfitting of so many different features into one model. The approach changed to then make smaller feature sets for only the audio and the transcript, and combine their output to one binary prediction of video performance. The removal of video from the model was to make it more lightweight and prove the ability to predict a model�s performance based on it�s content.
+
+Execution
+
+How it Started
+	The very first model I trained incorporated video, audio, and the transcript altogether and they were used to make a quantitative prediction on like count, share count, comment count, and view count for a given advertisement. This model turned out incredibly poorly, with none of those features having an individual accuracy of greater than 13%. This is one of the bigger problems I faced in development and forced me to pivot to making two changes: one that meant taking the video modality out of the greater model system, and also converting the prediction format to be a binary classification rather than the quantitative prediction. I selected features based on my intuition and research as well as experience from my previous project. I felt that looking at the pacing of the audio, rate of change in volume, structural pieces, and general length were all the strongest features I could derive to determine what makes an ad performant.
+
+	Training data consisted of 320 high performing advertisements from a diverse group of brands.
+
+
+
+High Level Overview
+The APE is an ensemble multi-modal machine learning model that allows a user to input a .mp4 video file of their advertisement and receive a binary classification of predicted performance. The ensemble model consists of two parts, an audio analysis model and a transcript analysis model. 
+After a user uploads a .mp4 advertisement to be tested it is saved as a temporary file and the audio track is extracted from the .mp4 using the ffmpeg library. Then the transcript is parsed from the audio and both are passed to feature extraction. Ten features are derived from each piece of the video, including the rate of change in volume, prosody, and the existence of a hook or a call to action. Then those features get passed to model trained on a dataset of viral branded ads from the public YouTube Data API. This model makes a binary prediction as to whether an advertisement will be �Performant� with ~65% accuracy. Then those predictions are output to the user with some recommendations to improve their advertisement depending on the model�s predicted features.
+
+Problems Encountered and Solutions
+	Once I moved to the binary classifier based on the audio and the transcript, I was running into an issue where the OpenAI Whisper transcription service was failing to recognize speech 70% of the time. I fixed this by lowering the threshold for recognition until it found a transcript consistently when it was present.
+
+Final State
+	We validated the 65% accuracy of the model by cross-validated against videos both within and outside of the training set. The final model architecture consists of a single Random Forest classifier that processes 20 combined features - 10 audio features and 10 transcript features - rather than separate models as initially planned. The system uses a streamlined approach where audio is extracted from MP4 files using FFmpeg, converted to 16kHz mono WAV format, and then processed through librosa for audio feature extraction. The transcript is generated using Google Speech Recognition API with optimized thresholds for consistent speech detection.
+
+	The audio features focus on attention-grabbing qualities like RMS energy for loudness, dynamic range for energy variation, pitch characteristics for voice quality, and temporal features like speech rate and pause duration. The transcript features analyze structural components including hook detection in the first 15 words, call-to-action counting, sentiment analysis, and engagement metrics like exclamation and question counts. All features are normalized using StandardScaler before being fed into the Random Forest model, which outputs a binary classification of "high" or "low" performance with confidence scores.
+
+	I determined brands by size, wanting a diverse dataset unbiased by large companies, so I filtered my search by branded channels of varying sizes and took their most popular advertisements for training. The criteria that made them high-performing was the view count, ensuring the model learned from advertisements that had already proven successful in capturing audience attention. The final system provides users with not just a binary prediction, but also detailed feature analysis showing which audio and text elements contributed most to the performance assessment.
+
+Implementation and Deployment
+	The frontend is a fairly simple Flask app that calls the model from an S3 droplet. There were some small challenges during deployment that mostly revolved around issues with the Dockerfile and the Flask run command. But once those were squared away deployment happened just fine. Another small issue was in the Digital Ocean environment variables where I wasn't saving them correctly, but that got sorted out relatively easily. It was really useful to learn how to debug in deployment because it is an area of the development cycle that I haven't explored fully yet. So being able to go in and push a new deployment and immediately see the problem within the runtime logs and debug from there was a little bit of tedious work but definitely gave me a good look into what it's like to deploy something publicly.
+
+	The web application architecture follows a straightforward pattern where users upload MP4 files through a clean interface, the Flask backend processes the video through the prediction pipeline, and results are returned with both the binary classification and detailed feature analysis. The model itself is stored on DigitalOcean Spaces (S3-compatible storage) and loaded dynamically when needed, allowing for easy updates without redeploying the entire application. This separation of concerns between the web interface and the machine learning model proved to be a solid architectural decision that simplified both development and maintenance.
+
+Reflection
+
+How I Think It Went
+	For what it is I am satisfied with how it turned out. As a proof of concept I think it exceeded my expectations, I was moving towards my deadline with an idea that I'd have a model that accepted input and gave out an output, regardless of accuracy or validation. Just something that "worked" from top to bottom. So the fact that I was able to achieve an accuracy of 65% without incorporating video at all I find to be pretty interesting and exciting in regards to what that might mean for the future.
+
+Timeline Accuracy
+	In terms of timeline it took longer than I think I originally anticipated, I expected to be able to train the model originally with all three modalities and figured it at least be improvable. But I couldn't figure out a way to improve it without completely redesigning the architecture so thats what I did. The change to a binary classification proved to be very impactful and meant that the margin for error was inherently much lower in comparison to making numeric predictions for values like the view and like count.
+
+What I Could Have Done Better
+	The first major change I'd make to the model architecture would be to reincorporate the video modality to make it a complete ensemble model that could fully capture all the integral features of an advertisement. Based on the performance of the audio/transcript model on a small sized dataset, I am confident that the addition of the last modality would have a significant effect on the accuracy of the model's predictions in determining if an ad is performant.
+
+	In the development process, I wish I had documented more throughout the life of this project so that I could have known looking back where my head was at each step of the way. I feel like I didn't make enough checkpoints throughout the development cycle that would have been useful to archive the direction I was heading towards at each part of the project.
+
+	I would gather more data, more advertisements to get a more diverse dataset with different content from different brands. I would add brands in different languages, so that the model has international relevance. I would want to add different data sources as well outside of the YouTube Data API. For example I'd use advertisements from the Meta Ad Library or the TikTok Ad Library to get a more relevant prediction to ads tailored to short-form content.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

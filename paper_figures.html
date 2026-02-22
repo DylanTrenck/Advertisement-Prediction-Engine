@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advertisement Prediction Engine - Paper Figures</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .figure {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            page-break-after: always;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .mermaid {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .caption {
+            text-align: center;
+            font-style: italic;
+            margin-top: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Advertisement Prediction Engine - Paper Figures</h1>
+    
+    <div class="figure">
+        <h2>Figure 1: Model Architecture</h2>
+        <div class="mermaid">
+graph TB
+    %% Input Layer
+    subgraph "Input Processing"
+        VIDEO[MP4 Video File<br/>User Upload]
+    end
+
+    %% Audio Processing Pipeline
+    subgraph "Audio Processing Pipeline"
+        FFMPEG[FFmpeg<br/>Audio Extraction]
+        AUDIO[WAV Audio<br/>16kHz Mono]
+        LIBROSA[librosa<br/>Audio Analysis]
+        AUDIO_FEATURES[10 Audio Features<br/>RMS, Pitch, MFCC, etc.]
+    end
+
+    %% Text Processing Pipeline
+    subgraph "Text Processing Pipeline"
+        SPEECH[Google Speech<br/>Recognition API]
+        TRANSCRIPT[Text Transcript<br/>Normalized Audio]
+        TEXTBLOB[TextBlob + NLTK<br/>Text Analysis]
+        TEXT_FEATURES[10 Text Features<br/>Hooks, CTAs, Sentiment, etc.]
+    end
+
+    %% Model Processing
+    subgraph "Model Processing"
+        COMBINE[Feature Combination<br/>20 Total Features<br/>Audio + Text]
+        SCALER[StandardScaler<br/>Feature Normalization]
+        RF[Random Forest<br/>Binary Classifier<br/>313 Videos Trained]
+    end
+
+    %% Output Layer
+    subgraph "Output Processing"
+        PREDICTION[Binary Prediction<br/>High/Low Performance]
+        CONFIDENCE[Confidence Score<br/>Feature Analysis]
+        RECOMMENDATIONS[Improvement<br/>Recommendations]
+    end
+
+    %% Data Flow Connections
+    VIDEO --> FFMPEG
+    FFMPEG --> AUDIO
+    AUDIO --> LIBROSA
+    AUDIO --> SPEECH
+    
+    LIBROSA --> AUDIO_FEATURES
+    SPEECH --> TRANSCRIPT
+    TRANSCRIPT --> TEXTBLOB
+    TEXTBLOB --> TEXT_FEATURES
+    
+    AUDIO_FEATURES --> COMBINE
+    TEXT_FEATURES --> COMBINE
+    
+    COMBINE --> SCALER
+    SCALER --> RF
+    RF --> PREDICTION
+    RF --> CONFIDENCE
+    RF --> RECOMMENDATIONS
+
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef audio fill:#ffebee
+    classDef text fill:#e8f5e8
+    classDef model fill:#e3f2fd
+    classDef output fill:#fff3e0
+    
+    class VIDEO input
+    class FFMPEG,AUDIO,LIBROSA,AUDIO_FEATURES audio
+    class SPEECH,TRANSCRIPT,TEXTBLOB,TEXT_FEATURES text
+    class COMBINE,SCALER,RF model
+    class PREDICTION,CONFIDENCE,RECOMMENDATIONS output
+        </div>
+        <div class="caption">Figure 1: Complete model architecture showing audio and text processing pipelines feeding into a single Random Forest classifier for binary performance prediction.</div>
+    </div>
+
+    <div class="figure">
+        <h2>Figure 2: Application Workflow</h2>
+        <div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant W as Web Interface<br/>(Flask App)
+    participant F as File System<br/>(Temporary Storage)
+    participant FF as FFmpeg<br/>(Audio Extraction)
+    participant SR as Google Speech<br/>Recognition API
+    participant AF as Audio Feature<br/>Extractor (librosa)
+    participant TF as Text Feature<br/>Extractor (TextBlob)
+    participant M as Random Forest<br/>Model
+    participant S3 as DigitalOcean<br/>Spaces (S3)
+
+    %% Upload and Initial Processing
+    U->>W: Upload MP4 Advertisement
+    W->>F: Save to Temporary File
+    W->>W: Validate File Type<br/>(MP4, AVI, MOV, MKV, WEBM)
+    
+    %% Audio Extraction
+    W->>FF: Extract Audio Track
+    FF->>FF: Convert to WAV<br/>(16kHz Mono)
+    FF-->>W: Return Audio File Path
+    
+    %% Parallel Processing
+    par Audio Feature Extraction
+        W->>AF: Process Audio File
+        AF->>AF: Extract 10 Audio Features<br/>(RMS, Pitch, MFCC, etc.)
+        AF-->>W: Return Audio Features
+    and Speech Recognition
+        W->>SR: Convert Speech to Text
+        SR->>SR: Optimize Recognition Threshold
+        SR-->>W: Return Transcript
+        W->>TF: Process Transcript
+        TF->>TF: Extract 10 Text Features<br/>(Hooks, CTAs, Sentiment, etc.)
+        TF-->>W: Return Text Features
+    end
+    
+    %% Model Processing
+    W->>W: Combine Features<br/>(20 Total Features)
+    W->>W: Normalize Features<br/>(StandardScaler)
+    W->>S3: Load Trained Model<br/>(Random Forest)
+    S3-->>W: Return Model & Scaler
+    W->>M: Predict Performance
+    M->>M: Binary Classification<br/>(High/Low)
+    M-->>W: Return Prediction +<br/>Confidence + Feature Analysis
+    
+    %% Response and Cleanup
+    W->>F: Delete Temporary Files
+    W-->>U: Display Results<br/>(Prediction + Recommendations)
+        </div>
+        <div class="caption">Figure 2: Complete data flow for a single prediction request, showing parallel processing of audio and text features with error handling and cleanup.</div>
+    </div>
+
+    <div class="figure">
+        <h2>Figure 3: Accuracy Improvements</h2>
+        <div class="mermaid">
+graph LR
+    subgraph "Model Evolution Timeline"
+        A[Initial Model<br/>Video + Audio + Text<br/>Quantitative Prediction<br/>13% Accuracy]
+        B[Pivot Point<br/>Remove Video Modality<br/>Switch to Binary Classification]
+        C[Audio + Text Model<br/>20 Combined Features<br/>Random Forest<br/>65% Accuracy]
+    end
+    
+    A -->|"Architecture Change"| B
+    B -->|"Feature Optimization"| C
+    
+    %% Accuracy Improvement
+    subgraph "Accuracy Improvements"
+        D[13% → 65%<br/>400% Improvement<br/>52% Accuracy Gain]
+    end
+    
+    C --> D
+    
+    %% Feature Breakdown
+    subgraph "Feature Set Comparison"
+        E[Initial Model<br/>Video Features<br/>Audio Features<br/>Text Features<br/>Quantitative Output<br/>4 Prediction Targets]
+        F[Final Model<br/>Audio Features (10)<br/>Text Features (10)<br/>Binary Output<br/>1 Prediction Target]
+    end
+    
+    A -.->|"Too Complex"| E
+    C -.->|"Streamlined"| F
+    
+    %% Performance Metrics
+    subgraph "Final Performance Metrics"
+        G[Cross-Validation<br/>65% Accuracy<br/>313 Training Videos<br/>Diverse Brand Dataset<br/>High/Low Classification]
+    end
+    
+    C --> G
+    
+    classDef initial fill:#ffebee
+    classDef pivot fill:#fff3e0
+    classDef final fill:#e8f5e8
+    classDef metrics fill:#e3f2fd
+    
+    class A,E initial
+    class B pivot
+    class C,F,G final
+    class D metrics
+        </div>
+        <div class="caption">Figure 3: Model evolution showing improvement from 13% to 65% accuracy through architecture simplification and feature optimization.</div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>
+
+
